@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 set -x -e
 
-export CONCURRENCY_LEVEL=${CONCURRENCY_LEVEL:=4}
 export LINUX_SRC_DIR=${LINUX_SRC_DIR:-${WORKDIR}/linux}
 
+# Use -j<nproc> as default if MAKEFLAGS is not set
+if [[ -v "${MAKEFLAGS}" ]]; then
+  export MAKEFLAGS="-j$(nproc)"
+fi
+
 # Start building the kernel
-patch_dir_array=( $PATCH_DIRS )
+patch_dir_array=( "${PATCH_DIRS}" )
 
 for patch_dir in "${patch_dir_array[@]}"
 do
@@ -20,7 +24,7 @@ do
 done
 
 # Configure kernel
-if [[ -v ALLCONFIG ]]; then
+if [[ -v "${ALLCONFIG}" ]]; then
   make KCONFIG_ALLCONFIG="${KCONFIG_ALLCONFIG:-arch/arm/configs/bcm2709_defconfig}" ${ALLCONFIG}
 else
   make "${DEFCONFIG:-bcm2709_defconfig}"

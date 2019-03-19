@@ -21,11 +21,13 @@ The patches need to have the extension `.patch`
   For example `DEFCONFIG=my_defconfig` with `my_defconfig` being available at `arch/arm/configs/my_defconfig`'
   - To configure using `all*config` set `ALLCONFIG` to one of the allconfig options `allyesconfig`, `allmodconfig`, `allnoconfig` or `randconfig`.
   To override which config is used as the starting point set [`KCONFIG_ALLCONFIG`](https://github.com/raspberrypi/linux/blob/560909d433109e3da08757237f30576c71697914/Documentation/kbuild/kconfig.txt#L51) to the path of the config file. For example `ALLCONFIG=/workdir/configs/myminimalconfig`
+- The amount of jobs used by make will default to the value returned by `nproc`.
+  To override this set the `MAKEFLAGS` environment variable. For example `MAKEFLAGS=-j8`.
 
 ### Example usage
 ```
 # Checkout kernel sources
-$ git clone --single-branch --branch rpi-4.9.y --depth 1 https://www.github.com/raspberrypi/linux
+$ git clone --single-branch --branch rpi-4.14.y --depth 1 https://www.github.com/raspberrypi/linux
 
 # Build a kernel archive using the docker image
 # using a volume mount for the linux sources to /workdir
