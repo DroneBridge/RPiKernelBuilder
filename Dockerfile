@@ -3,10 +3,13 @@ FROM debian:jessie
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
   bc \
+  bison \
   build-essential \
   curl \
+  flex \
   git-core \
   libncurses5-dev \
+  libssl-dev \
   module-init-tools
 
 # Install crosscompile toolchain for ARM64/aarch64
