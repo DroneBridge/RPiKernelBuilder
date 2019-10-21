@@ -32,7 +32,7 @@ $ git clone --single-branch --branch rpi-4.14.y --depth 1 https://www.github.com
 # Build a kernel archive using the docker image
 # using a volume mount for the linux sources to /workdir
 $ cd linux
-$ docker run --rm -ti -v "${PWD}":/workdir rpi3-kernel-builder
+$ docker run --rm -ti -v "${PWD}":/workdir simonvanderveldt/rpi3-kernel-builder
 
 # When the build is done the kernel archive is available in the build directory
 $ ls -ahl build/
