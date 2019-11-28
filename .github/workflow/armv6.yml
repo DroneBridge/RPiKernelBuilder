@@ -1,0 +1,24 @@
+name: armv6
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: install-build-deps
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y qemu-user-static
+    - name: cross-compile
+      run: |
+        docker build -t raspi-kernel-builder .
+        docker run --env KCONFIG=/workdir/configs/config_db_v6_kernel_4_19_86 --rm -v "${PWD}":/workdir raspi-kernel-builder
+    - name: Upload artifact
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: linux-armv6
+        path: build

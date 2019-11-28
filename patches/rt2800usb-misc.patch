@@ -1,0 +1,90 @@
+diff --git a/drivers/net/wireless/ralink/rt2x00/rt2x00dev.c b/drivers/net/wireless/ralink/rt2x00/rt2x00dev.c
+index 357c0941a..bab281322 100644
+--- a/drivers/net/wireless/ralink/rt2x00/rt2x00dev.c
++++ b/drivers/net/wireless/ralink/rt2x00/rt2x00dev.c
+@@ -91,7 +91,7 @@ int rt2x00lib_enable_radio(struct rt2x00_dev *rt2x00dev)
+ 	/*
+ 	 * Start watchdog monitoring.
+ 	 */
+-	rt2x00link_start_watchdog(rt2x00dev);
++	//rt2x00link_start_watchdog(rt2x00dev);
+ 
+ 	return 0;
+ }
+@@ -104,7 +104,7 @@ void rt2x00lib_disable_radio(struct rt2x00_dev *rt2x00dev)
+ 	/*
+ 	 * Stop watchdog monitoring.
+ 	 */
+-	rt2x00link_stop_watchdog(rt2x00dev);
++	//rt2x00link_stop_watchdog(rt2x00dev);
+ 
+ 	/*
+ 	 * Stop all queues
+diff --git a/drivers/net/wireless/ralink/rt2x00/rt2x00lib.h b/drivers/net/wireless/ralink/rt2x00/rt2x00lib.h
+index 9ddc1681b..a1e14609c 100644
+--- a/drivers/net/wireless/ralink/rt2x00/rt2x00lib.h
++++ b/drivers/net/wireless/ralink/rt2x00/rt2x00lib.h
+@@ -28,11 +28,11 @@
+ /*
+  * Interval defines
+  */
+-#define WATCHDOG_INTERVAL	round_jiffies_relative(HZ)
+-#define LINK_TUNE_SECONDS	1
++#define WATCHDOG_INTERVAL	round_jiffies_relative(180 * HZ)
++#define LINK_TUNE_SECONDS	2
+ #define LINK_TUNE_INTERVAL	round_jiffies_relative(LINK_TUNE_SECONDS * HZ)
+ #define AGC_SECONDS		4
+-#define VCO_SECONDS		10
++#define VCO_SECONDS		180
+ 
+ /*
+  * rt2x00_rate: Per rate device information
+diff --git a/drivers/net/wireless/ralink/rt2x00/rt2x00link.c b/drivers/net/wireless/ralink/rt2x00/rt2x00link.c
+index 2010a7715..58b696ca9 100644
+--- a/drivers/net/wireless/ralink/rt2x00/rt2x00link.c
++++ b/drivers/net/wireless/ralink/rt2x00/rt2x00link.c
+@@ -393,6 +393,8 @@ static void rt2x00link_tuner(struct work_struct *work)
+ void rt2x00link_start_watchdog(struct rt2x00_dev *rt2x00dev)
+ {
+ 	struct link *link = &rt2x00dev->link;
++	
++	return;
+ 
+ 	if (test_bit(DEVICE_STATE_PRESENT, &rt2x00dev->flags) &&
+ 	    rt2x00dev->ops->lib->watchdog)
+@@ -403,32 +405,13 @@ void rt2x00link_start_watchdog(struct rt2x00_dev *rt2x00dev)
+ 
+ void rt2x00link_stop_watchdog(struct rt2x00_dev *rt2x00dev)
+ {
++	return;
++	
+ 	cancel_delayed_work_sync(&rt2x00dev->link.watchdog_work);
+ }
+ 
+-static void rt2x00link_watchdog(struct work_struct *work)
+-{
+-	struct rt2x00_dev *rt2x00dev =
+-	    container_of(work, struct rt2x00_dev, link.watchdog_work.work);
+-	struct link *link = &rt2x00dev->link;
+-
+-	/*
+-	 * When the radio is shutting down we should
+-	 * immediately cease the watchdog monitoring.
+-	 */
+-	if (!test_bit(DEVICE_STATE_ENABLED_RADIO, &rt2x00dev->flags))
+-		return;
+-
+-	rt2x00dev->ops->lib->watchdog(rt2x00dev);
+-
+-	if (test_bit(DEVICE_STATE_PRESENT, &rt2x00dev->flags))
+-		ieee80211_queue_delayed_work(rt2x00dev->hw,
+-					     &link->watchdog_work,
+-					     WATCHDOG_INTERVAL);
+-}
+-
+ void rt2x00link_register(struct rt2x00_dev *rt2x00dev)
+ {
+-	INIT_DELAYED_WORK(&rt2x00dev->link.watchdog_work, rt2x00link_watchdog);
++	//INIT_DELAYED_WORK(&rt2x00dev->link.watchdog_work, rt2x00link_watchdog);
+ 	INIT_DELAYED_WORK(&rt2x00dev->link.work, rt2x00link_tuner);
+ }

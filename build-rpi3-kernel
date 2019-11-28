@@ -3,14 +3,51 @@ set -x -e
 
 export LINUX_SRC_DIR=${LINUX_SRC_DIR:-${WORKDIR}/linux}
 
+# Clean or checkout the linux source directory
+if [ -d "${LINUX_SRC_DIR}" ]; then
+    cd "${LINUX_SRC_DIR}"
+    rm -rf drivers/media/v4l2loopback drivers/net/wireless/realtek/rtl8812au .config
+    git reset --hard HEAD
+else
+    git clone --single-branch --branch rpi-4.19.y --depth 1 https://www.github.com/raspberrypi/linux ${LINUX_SRC_DIR}
+    cd "${LINUX_SRC_DIR}"
+fi
+
 # Use -j<nproc> as default if MAKEFLAGS is not set
 if [[ -v "${MAKEFLAGS}" ]]; then
   export MAKEFLAGS="-j$(nproc)"
 fi
 
-# Start building the kernel
-patch_dir_array=( "${PATCH_DIRS}" )
+# Checkout the rtl8812au driver
+(
+    cd drivers/net/wireless/realtek
+    git clone -b v5.2.20 https://github.com/aircrack-ng/rtl8812au.git
+    cd rtl8812au
 
+    sed -i 's/CONFIG_PLATFORM_I386_PC = y/CONFIG_PLATFORM_I386_PC = n/' Makefile
+    sed -i 's/CONFIG_PLATFORM_ARM_RPI = n/CONFIG_PLATFORM_ARM_RPI = y/' Makefile
+    # per justins request commented out
+    # sudo sed -i 's/CONFIG_USB2_EXTERNAL_POWER = n/CONFIG_USB2_EXTERNAL_POWER = y/' Makefile
+    sed -i 's/export TopDIR ?= $(shell pwd)/export TopDIR2 ?= $(shell pwd)/' Makefile
+    sed -i '/export TopDIR2 ?= $(shell pwd)/a export TopDIR := $(TopDIR2)/drivers/net/wireless/realtek/rtl8812au/' Makefile
+
+    # Change the STBC value to make all antennas send with awus036ACH
+    (
+	cd core
+	sed -i 's/u8 fixed_rate = MGN_1M, sgi = 0, bwidth = 0, ldpc = 0, stbc = 0;/u8 fixed_rate = MGN_1M, sgi = 0, bwidth = 0, ldpc = 0, stbc = 1;/' rtw_xmit.c
+    )
+)
+
+# Checkout the v4l2loopback driver
+(
+    cd drivers/media
+    git clone https://github.com/RespawnDespair/v4l2loopback.git
+    # in Make file change CONFIG_PLATFORM_I386_PC = y -> n, CONFIG_PLATFORM_ARM_RPI = n -> y and TopDir
+)
+
+# Apply the patches
+PATCH_DIRS="${PATCH_DIR:-${WORKDIR}/patches}"
+patch_dir_array=( "${PATCH_DIRS}" )
 for patch_dir in "${patch_dir_array[@]}"
 do
   # Apply patches if `patch_dir` exists
@@ -24,7 +61,10 @@ do
 done
 
 # Configure kernel
-if [[ -v "${ALLCONFIG}" ]]; then
+if [ -f "${KCONFIG}" ]; then
+  cp "${KCONFIG}" .config
+  yes '' | make oldconfig
+elif [[ -v "${ALLCONFIG}" ]]; then
   make KCONFIG_ALLCONFIG="${KCONFIG_ALLCONFIG:-arch/arm/configs/bcm2709_defconfig}" ${ALLCONFIG}
 else
   make "${DEFCONFIG:-bcm2709_defconfig}"

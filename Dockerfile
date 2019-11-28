@@ -24,6 +24,5 @@ WORKDIR /workdir
 ENV WORKDIR /workdir
 ENV BUILD_DEST /workdir/build
 
-# Add the build script and set it as default command
-COPY build-rpi3-kernel /opt/bin/build-rpi3-kernel
-CMD ["/opt/bin/build-rpi3-kernel"]
+# Run the kernel builder from the current directory
+CMD ["./build-rpi3-kernel"]

@@ -1,0 +1,123 @@
+diff --git a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
+index a567bc273..bed2f4582 100644
+--- a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
++++ b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
+@@ -4741,6 +4741,7 @@ static void rt2800_config_txpower_rt28xx(struct rt2x00_dev *rt2x00dev,
+ 					     EEPROM_TXPOWER_BYRATE_RATE0);
+ 		txpower = rt2800_compensate_txpower(rt2x00dev, is_rate_b, band,
+ 					     power_level, txpower, delta);
++		txpower += rt2800_txpower(rt2x00dev);
+ 		rt2x00_set_field32(&reg, TX_PWR_CFG_RATE0, txpower);
+ 
+ 		/*
+@@ -4752,6 +4753,7 @@ static void rt2800_config_txpower_rt28xx(struct rt2x00_dev *rt2x00dev,
+ 					     EEPROM_TXPOWER_BYRATE_RATE1);
+ 		txpower = rt2800_compensate_txpower(rt2x00dev, is_rate_b, band,
+ 					     power_level, txpower, delta);
++		txpower += rt2800_txpower(rt2x00dev);
+ 		rt2x00_set_field32(&reg, TX_PWR_CFG_RATE1, txpower);
+ 
+ 		/*
+@@ -4763,6 +4765,7 @@ static void rt2800_config_txpower_rt28xx(struct rt2x00_dev *rt2x00dev,
+ 					     EEPROM_TXPOWER_BYRATE_RATE2);
+ 		txpower = rt2800_compensate_txpower(rt2x00dev, is_rate_b, band,
+ 					     power_level, txpower, delta);
++		txpower += rt2800_txpower(rt2x00dev);
+ 		rt2x00_set_field32(&reg, TX_PWR_CFG_RATE2, txpower);
+ 
+ 		/*
+@@ -4774,6 +4777,7 @@ static void rt2800_config_txpower_rt28xx(struct rt2x00_dev *rt2x00dev,
+ 					     EEPROM_TXPOWER_BYRATE_RATE3);
+ 		txpower = rt2800_compensate_txpower(rt2x00dev, is_rate_b, band,
+ 					     power_level, txpower, delta);
++		txpower += rt2800_txpower(rt2x00dev);
+ 		rt2x00_set_field32(&reg, TX_PWR_CFG_RATE3, txpower);
+ 
+ 		/* read the next four txpower values */
+@@ -4791,6 +4795,7 @@ static void rt2800_config_txpower_rt28xx(struct rt2x00_dev *rt2x00dev,
+ 					     EEPROM_TXPOWER_BYRATE_RATE0);
+ 		txpower = rt2800_compensate_txpower(rt2x00dev, is_rate_b, band,
+ 					     power_level, txpower, delta);
++		txpower += rt2800_txpower(rt2x00dev);
+ 		rt2x00_set_field32(&reg, TX_PWR_CFG_RATE4, txpower);
+ 
+ 		/*
+@@ -4802,6 +4807,7 @@ static void rt2800_config_txpower_rt28xx(struct rt2x00_dev *rt2x00dev,
+ 					     EEPROM_TXPOWER_BYRATE_RATE1);
+ 		txpower = rt2800_compensate_txpower(rt2x00dev, is_rate_b, band,
+ 					     power_level, txpower, delta);
++		txpower += rt2800_txpower(rt2x00dev);
+ 		rt2x00_set_field32(&reg, TX_PWR_CFG_RATE5, txpower);
+ 
+ 		/*
+@@ -4813,6 +4819,7 @@ static void rt2800_config_txpower_rt28xx(struct rt2x00_dev *rt2x00dev,
+ 					     EEPROM_TXPOWER_BYRATE_RATE2);
+ 		txpower = rt2800_compensate_txpower(rt2x00dev, is_rate_b, band,
+ 					     power_level, txpower, delta);
++		txpower += rt2800_txpower(rt2x00dev);
+ 		rt2x00_set_field32(&reg, TX_PWR_CFG_RATE6, txpower);
+ 
+ 		/*
+@@ -4824,6 +4831,7 @@ static void rt2800_config_txpower_rt28xx(struct rt2x00_dev *rt2x00dev,
+ 					     EEPROM_TXPOWER_BYRATE_RATE3);
+ 		txpower = rt2800_compensate_txpower(rt2x00dev, is_rate_b, band,
+ 					     power_level, txpower, delta);
++		txpower += rt2800_txpower(rt2x00dev);
+ 		rt2x00_set_field32(&reg, TX_PWR_CFG_RATE7, txpower);
+ 
+ 		rt2800_register_write(rt2x00dev, offset, reg);
+diff --git a/drivers/net/wireless/ralink/rt2x00/rt2800lib.h b/drivers/net/wireless/ralink/rt2x00/rt2800lib.h
+index 51d9c2a93..e420adbef 100644
+--- a/drivers/net/wireless/ralink/rt2x00/rt2800lib.h
++++ b/drivers/net/wireless/ralink/rt2x00/rt2800lib.h
+@@ -71,6 +71,8 @@ struct rt2800_ops {
+ 
+ 	int (*read_eeprom)(struct rt2x00_dev *rt2x00dev);
+ 	bool (*hwcrypt_disabled)(struct rt2x00_dev *rt2x00dev);
++	
++	int (*txpower)(struct rt2x00_dev *rt2x00dev);
+ 
+ 	int (*drv_write_firmware)(struct rt2x00_dev *rt2x00dev,
+ 				  const u8 *data, const size_t len);
+@@ -155,6 +157,13 @@ static inline bool rt2800_hwcrypt_disabled(struct rt2x00_dev *rt2x00dev)
+ 	return rt2800ops->hwcrypt_disabled(rt2x00dev);
+ }
+ 
++static inline int rt2800_txpower(struct rt2x00_dev *rt2x00dev)
++{
++    const struct rt2800_ops *rt2800ops = rt2x00dev->ops->drv;
++
++    return rt2800ops->txpower(rt2x00dev);
++}
++
+ static inline int rt2800_drv_write_firmware(struct rt2x00_dev *rt2x00dev,
+ 					    const u8 *data, const size_t len)
+ {
+diff --git a/drivers/net/wireless/ralink/rt2x00/rt2800usb.c b/drivers/net/wireless/ralink/rt2x00/rt2800usb.c
+index 98a7313fe..b53e61fb3 100644
+--- a/drivers/net/wireless/ralink/rt2x00/rt2800usb.c
++++ b/drivers/net/wireless/ralink/rt2x00/rt2800usb.c
+@@ -51,6 +51,15 @@ static bool rt2800usb_hwcrypt_disabled(struct rt2x00_dev *rt2x00dev)
+ 	return modparam_nohwcrypt;
+ }
+ 
++static int modparam_txpower;
++module_param_named(txpower, modparam_txpower, int, S_IRUGO);
++MODULE_PARM_DESC(txpower, "TX power. Default 0, min=-5, max=5 (dB)");
++
++static int rt2800usb_txpower(struct rt2x00_dev *rt2x00dev)
++{
++    return modparam_txpower;
++}
++
+ /*
+  * Queue handlers.
+  */
+@@ -820,6 +829,7 @@ static const struct rt2800_ops rt2800usb_rt2800_ops = {
+ 	.regbusy_read		= rt2x00usb_regbusy_read,
+ 	.read_eeprom		= rt2800usb_read_eeprom,
+ 	.hwcrypt_disabled	= rt2800usb_hwcrypt_disabled,
++	.txpower			= rt2800usb_txpower,
+ 	.drv_write_firmware	= rt2800usb_write_firmware,
+ 	.drv_init_registers	= rt2800usb_init_registers,
+ 	.drv_get_txwi		= rt2800usb_get_txwi,
