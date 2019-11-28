@@ -1,0 +1,19 @@
+diff --git a/drivers/media/Kconfig b/drivers/media/Kconfig
+index 8add62a18..2f6ea8296 100644
+--- a/drivers/media/Kconfig
++++ b/drivers/media/Kconfig
+@@ -234,6 +234,14 @@ config MEDIA_ATTACH
+ 	depends on MODULES
+ 	default MODULES
+ 
++config VIDEO_LOOPBACK
++	tristate
++	depends on MEDIA_SUPPORT
++	depends on MEDIA_CAMERA_SUPPORT || MEDIA_ANALOG_TV_SUPPORT || MEDIA_RADIO_SUPPORT || MEDIA_SDR_SUPPORT
++	default y
++
++source "drivers/media/v4l2loopback/Kconfig"
++
+ source "drivers/media/i2c/Kconfig"
+ source "drivers/media/spi/Kconfig"
+ source "drivers/media/tuners/Kconfig"
