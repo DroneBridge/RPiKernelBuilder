@@ -1,17 +1,16 @@
 #!/usr/bin/env bash
 set -x -e
 
+apt-get install -y cpio
+
 export LINUX_SRC_DIR=${LINUX_SRC_DIR:-${WORKDIR}/linux}
 
-# Clean or checkout the linux source directory
-if [ -d "${LINUX_SRC_DIR}" ]; then
-    cd "${LINUX_SRC_DIR}"
-    rm -rf drivers/media/v4l2loopback drivers/net/wireless/realtek/rtl8812au .config
-    git reset --hard HEAD
-else
-    git clone --single-branch --branch rpi-4.19.y --depth 1 https://www.github.com/raspberrypi/linux ${LINUX_SRC_DIR}
-    cd "${LINUX_SRC_DIR}"
-fi
+# Make sure the source directory is cleaned up
+rm -rf "${LINUX_SRC_DIR}"
+
+# Checkout the linux source directory
+git clone --single-branch --branch rpi-4.19.y --depth 1 https://www.github.com/raspberrypi/linux ${LINUX_SRC_DIR}
+cd "${LINUX_SRC_DIR}"
 
 # Use -j<nproc> as default if MAKEFLAGS is not set
 if [[ -v "${MAKEFLAGS}" ]]; then
@@ -76,7 +75,9 @@ KERNEL_VERSION=$(make kernelrelease | grep "^4.")
 echo "Building kernel ${KERNEL_VERSION}"
 
 # Build everything
-make zImage modules dtbs
+yes "" | make bindeb-pkg
+#make zImage modules dtbs
+#make bindev-pkg
 
 # Copy to tmp destionation
 export TMP_DEST=/tmp/build
@@ -84,9 +85,7 @@ INSTALL_MOD_PATH="${TMP_DEST}" make modules_install
 
 mkdir -p "${TMP_DEST}/boot/overlays"
 cp arch/arm/boot/zImage "${TMP_DEST}/boot/kernel-${KERNEL_VERSION}.img"
-cp arch/arm/boot/dts/*.dtb "${TMP_DEST}"/boot/
-cp arch/arm/boot/dts/overlays/*.dtb* "${TMP_DEST}"/boot/overlays/
-cp arch/arm/boot/dts/overlays/README "${TMP_DEST}"/boot/overlays/
+cp -R arch/arm/boot/dts/* "${TMP_DEST}"/boot/
 
 # Copy config.txt to /boot if it exists
 if [ -f config.txt ] ; then
@@ -109,3 +108,4 @@ fi
 mkdir -p "${BUILD_DEST}"
 tar -cvzf "${BUILD_DEST}/kernel-${KERNEL_VERSION}.tar.gz" -C $TMP_DEST .
 sha256sum "${BUILD_DEST}/kernel-${KERNEL_VERSION}.tar.gz" > "${BUILD_DEST}/kernel-${KERNEL_VERSION}.sha256"
+mv *.deb "${BUILD_DEST}"
