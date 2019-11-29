@@ -1,3 +1,5 @@
+[![Actions Status](https://github.com/webbbn/docker-rpi3-kernel-builder/workflows/build/badge.svg)
+
 # Docker Raspberry Pi 3 kernel builder [![Docker Build Status](https://img.shields.io/docker/build/simonvanderveldt/rpi3-kernel-builder.svg)](https://hub.docker.com/r/simonvanderveldt/rpi3-kernel-builder/)
 Docker image to build a Raspberry Pi 3 kernel for the `arm` architecture
 
