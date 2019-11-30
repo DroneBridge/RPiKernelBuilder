@@ -12,11 +12,9 @@ RUN apt-get update && apt-get install -y \
   libssl-dev \
   module-init-tools
 
-# Install crosscompile toolchain for ARM64/aarch64
-RUN mkdir -p /opt/linaro && \
-  curl -sSL https://releases.linaro.org/components/toolchain/binaries/7.1-2017.08/arm-linux-gnueabihf/gcc-linaro-7.1.1-2017.08-x86_64_arm-linux-gnueabihf.tar.xz | tar xfJ - -C /opt/linaro
-ENV CROSS_COMPILE=/opt/linaro/gcc-linaro-7.1.1-2017.08-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
-ENV ARCH=arm
+# Install the cross compiler tools
+RUN git clone https://github.com/raspberrypi/tools /opt/tools
+ENV TOOLS /opt/tools
 
 # Create working directory
 RUN mkdir -p /workdir
