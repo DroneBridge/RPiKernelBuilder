@@ -1,7 +1,29 @@
 #!/usr/bin/env bash
 set -x -e
 
-apt-get install -y cpio
+if [ $# != 1 ]; then
+    echo "Usage: $0 <0|3>"
+    exit
+fi
+case $1 in
+    "0")
+	KERNEL="kernel"
+	KCONFIG="bcmrpi_defconfig"
+	;;
+    "3")
+	KERNEL="kernel7"
+	KCONFIG="bcm2709_defconfig"
+	;;
+    *)
+	echo "Usage: $0 <0|3>"
+	exit
+	;;
+esac
+
+# Use -j<nproc> as default if MAKEFLAGS is not set
+if [ -z "${MAKEFLAGS}" ]; then
+  export MAKEFLAGS="-j$(nproc)"
+fi
 
 export LINUX_SRC_DIR=${LINUX_SRC_DIR:-${WORKDIR}/linux}
 
@@ -11,11 +33,6 @@ rm -rf "${LINUX_SRC_DIR}"
 # Checkout the linux source directory
 git clone --single-branch --branch rpi-4.19.y --depth 1 https://www.github.com/raspberrypi/linux ${LINUX_SRC_DIR}
 cd "${LINUX_SRC_DIR}"
-
-# Use -j<nproc> as default if MAKEFLAGS is not set
-if [[ -v "${MAKEFLAGS}" ]]; then
-  export MAKEFLAGS="-j$(nproc)"
-fi
 
 # Checkout the rtl8812au driver
 (
@@ -61,11 +78,13 @@ done
 
 # Configure kernel
 ARCH=arm
+
 PATH=${PATH}:/opt/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin
-make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- bcm2709_defconfig
+make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- ${KCONFIG}
 
 # Change some defaults
 sed -i 's/^.*CONFIG_NET_FOU .*$/CONFIG_NET_FOU=m/' .config
+sed -i 's/^.*CONFIG_RTL8812AU .*$/CONFIG_RTL8812AU=m/' .config
 sed -i 's/^.*CONFIG_CFG80211_CERTIFICATION_ONUS.*$/CONFIG_CFG80211_CERTIFICATION_ONUS=y/' .config
 sed -i 's/^.*CONFIG_CFG80211_REQUIRE_SIGNED_REGDB.*$/#CONFIG_CFG80211_REQUIRE_SIGNED_REGDB is not set/' .config
 sed -i 's/^.*CONFIG_CFG80211_USE_KERNEL_REGDB_KEYS.*$/#CONFIG_CFG80211_USE_KERNEL_REGDB_KEYS is not set/' .config
@@ -76,16 +95,17 @@ KERNEL_VERSION=$(make kernelrelease | grep "^4.")
 echo "Building kernel ${KERNEL_VERSION}"
 
 # Build everything
-yes "" | make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- zImage modules dtbs
-yes "" | make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- bindeb-pkg
+yes "" | make ${MAKEFLAGS} ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- zImage modules dtbs
 
 # Copy to tmp destionation
 export TMP_DEST=/tmp/build
 INSTALL_MOD_PATH="${TMP_DEST}" make modules_install
 
 mkdir -p "${TMP_DEST}/boot/overlays"
-cp arch/arm/boot/zImage "${TMP_DEST}/boot/kernel-${KERNEL_VERSION}.img"
-cp -R arch/arm/boot/dts/* "${TMP_DEST}"/boot/
+cp arch/arm/boot/zImage "${TMP_DEST}/boot/${KERNEL}.img"
+cp arch/arm/boot/dts/*.dtb "${TMP_DEST}"/boot/
+cp arch/arm/boot/dts/overlays/*.dtb* "${TMP_DEST}"/boot/overlays/
+cp arch/arm/boot/dts/overlays/README "${TMP_DEST}"/boot/overlays/
 
 # Copy config.txt to /boot if it exists
 if [ -f config.txt ] ; then
@@ -108,4 +128,3 @@ fi
 mkdir -p "${BUILD_DEST}"
 tar -cvzf "${BUILD_DEST}/kernel-${KERNEL_VERSION}.tar.gz" -C $TMP_DEST .
 sha256sum "${BUILD_DEST}/kernel-${KERNEL_VERSION}.tar.gz" > "${BUILD_DEST}/kernel-${KERNEL_VERSION}.sha256"
-mv "${WORKDIR}"/*.deb "${BUILD_DEST}"

@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
   build-essential \
   curl \
   flex \
+  cpio \
   git-core \
   libncurses5-dev \
   libssl-dev \
