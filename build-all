@@ -3,5 +3,5 @@
 sudo apt-get update
 sudo apt-get install -y qemu-user-static
 docker build -t raspi-kernel-builder .
-docker run --env --rm -v "${PWD}":/workdir raspi-kernel-builder
-# The build script does not yet support armel builds.
+#docker run -v "${PWD}":/workdir raspi-kernel-builder ./build-rpi3-kernel 0
+docker run -v "${PWD}":/workdir raspi-kernel-builder ./build-rpi3-kernel 3
