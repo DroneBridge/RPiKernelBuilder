@@ -3,6 +3,7 @@ FROM debian:jessie
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
   bc \
+  zip \
   bison \
   build-essential \
   curl \
@@ -21,7 +22,6 @@ ENV TOOLS /opt/tools
 RUN mkdir -p /workdir
 WORKDIR /workdir
 ENV WORKDIR /workdir
-ENV BUILD_DEST /workdir/build
 
 # Run the kernel builder from the current directory
-CMD ["./build-rpi3-kernel"]
+CMD ["./build.sh"]

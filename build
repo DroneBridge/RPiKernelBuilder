@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+set -x -e
+
+# Use -j<nproc> as default if MAKEFLAGS is not set
+if [ -z "${MAKEFLAGS}" ]; then
+  export MAKEFLAGS="-j$(nproc)"
+fi
+
+ROOT_DIR="${ROOT_DIR:-${PWD}}"
+LINUX_SRC_DIR="${LINUX_SRC_DIR:-${ROOT_DIR}/linux}"
+echo ${ROOT_DIR}
+echo ${LINUX_SRC_DIR}
+
+# Make sure the source directory and destination directory are cleaned up
+if [ -d "${LINUX_SRC_DIR}" ]; then
+    echo "Removing linux source: ${LINUX_SRC_DIR}"
+    rm -rf "${LINUX_SRC_DIR}"
+fi
+
+# Checkout the linux source directory
+git clone --single-branch --branch rpi-4.19.y --depth 1 https://www.github.com/raspberrypi/linux ${LINUX_SRC_DIR}
+cd "${LINUX_SRC_DIR}"
+
+# Create the temporary install directory
+KDEST="${LINUX_SRC_DIR}/install"
+echo "Creating install directory: ${KDEST}"
+mkdir -p "${KDEST}"
+
+# Checkout the rtl8812au driver
+(
+    cd drivers/net/wireless/realtek
+    git clone -b v5.2.20 https://github.com/aircrack-ng/rtl8812au.git
+    cd rtl8812au
+
+    sed -i 's/CONFIG_PLATFORM_I386_PC = y/CONFIG_PLATFORM_I386_PC = n/' Makefile
+    sed -i 's/CONFIG_PLATFORM_ARM_RPI = n/CONFIG_PLATFORM_ARM_RPI = y/' Makefile
+    # per justins request commented out
+    # sudo sed -i 's/CONFIG_USB2_EXTERNAL_POWER = n/CONFIG_USB2_EXTERNAL_POWER = y/' Makefile
+    sed -i 's/export TopDIR ?= $(shell pwd)/export TopDIR2 ?= $(shell pwd)/' Makefile
+    sed -i '/export TopDIR2 ?= $(shell pwd)/a export TopDIR := $(TopDIR2)/drivers/net/wireless/realtek/rtl8812au/' Makefile
+
+    # Change the STBC value to make all antennas send with awus036ACH
+    (
+	cd core
+	sed -i 's/u8 fixed_rate = MGN_1M, sgi = 0, bwidth = 0, ldpc = 0, stbc = 0;/u8 fixed_rate = MGN_1M, sgi = 0, bwidth = 0, ldpc = 0, stbc = 1;/' rtw_xmit.c
+    )
+)
+
+# Checkout the v4l2loopback driver
+(
+    cd drivers/media
+    git clone https://github.com/RespawnDespair/v4l2loopback.git
+    # in Make file change CONFIG_PLATFORM_I386_PC = y -> n, CONFIG_PLATFORM_ARM_RPI = n -> y and TopDir
+)
+
+# Apply the patches
+PATCH_DIRS="${PATCH_DIR:-${ROOT_DIR}/patches}"
+patch_dir_array=( "${PATCH_DIRS}" )
+for patch_dir in "${patch_dir_array[@]}"
+do
+  # Apply patches if `patch_dir` exists
+  if [ -d "${patch_dir}" ]; then
+    echo "Applying patches from ${patch_dir}"
+    for patch in "${patch_dir}/"*.patch; do
+      echo "Applying patch ${patch}"
+      patch -p1 < "${patch}"
+    done
+  fi
+done
+
+build_kernel() {
+    KERNEL=$1
+    KCONFIG=$2
+
+    # Condigure the kernel
+    PATH=${PATH}:/opt/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin
+    make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- ${KCONFIG}
+
+    # Change some config defaults
+    sed -i 's/^.*CONFIG_NET_FOU .*$/CONFIG_NET_FOU=m/' .config
+    sed -i 's/^.*CONFIG_RTL8812AU .*$/CONFIG_RTL8812AU=m/' .config
+    sed -i 's/^.*CONFIG_CFG80211_CERTIFICATION_ONUS.*$/CONFIG_CFG80211_CERTIFICATION_ONUS=y/' .config
+    sed -i 's/^.*CONFIG_CFG80211_REQUIRE_SIGNED_REGDB.*$/#CONFIG_CFG80211_REQUIRE_SIGNED_REGDB is not set/' .config
+    sed -i 's/^.*CONFIG_CFG80211_USE_KERNEL_REGDB_KEYS.*$/#CONFIG_CFG80211_USE_KERNEL_REGDB_KEYS is not set/' .config
+
+    # Store and print kernelrease
+    make kernelrelease
+    KERNEL_VERSION=$(make kernelrelease | sed 's/[-+].*//g')
+    echo "Building kernel ${KERNEL_VERSION} ${KERNEL} usind config ${KCONFIG}"
+
+    # Build everything
+    yes "" | make ${MAKEFLAGS} ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- zImage modules dtbs
+    yes "" | make ${MAKEFLAGS} ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- bindeb-pkg
+    
+    # Copy the kernel and modules to the build destination
+    mkdir -p "${KDEST}/boot"
+    cp arch/arm/boot/zImage "${KDEST}/boot/${KERNEL}.img"
+    INSTALL_MOD_PATH="${KDEST}" make modules_install
+
+    # Install the kernel headers into the build destination
+    make headers_install ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- INSTALL_HDR_PATH="${KDEST}/usr/include"
+
+    # Copy the overlays to the build destination
+    mkdir -p "${KDEST}/boot/overlays"
+    cp arch/arm/boot/dts/*.dtb "${KDEST}"/boot/
+    cp arch/arm/boot/dts/overlays/*.dtb* "${KDEST}"/boot/overlays/
+    cp arch/arm/boot/dts/overlays/README "${KDEST}"/boot/overlays/
+}
+
+
+# Build the kernel for armv6 (Pi 1, Pi Zero, Pi Zero W, or Compute Module)
+build_kernel "kernel" "bcmrpi_defconfig"
+build_kernel "kernel7" "bcm2709_defconfig"
+build_kernel "kernel7l" "bcm2711_defconfig"
+
+# Copy the files into the kernel build destination
+cd ${ROOT_DIR}/files
+cp -a * ${KDEST}
+
+# Create the final build destination directory
+cd ${ROOT_DIR}
+DIR_NAME=rpi_kernels_${KERNEL_VERSION}_`date +"%G-%m-%d"`
+BUILD_DEST="${PWD}/${DIR_NAME}"
+if [ -d "${BUILD_DEST}"]; then
+    rm -rf "${BUILD_DEST}"
+fi
+mkdir -p "${BUILD_DEST}"
+
+# Create a tarball of the kernel build results
+cd "${KDEST}"
+tar cvzf "${BUILD_DEST}/kernels.tar.gz" *
+
+# Copy the debs into the build destination
+cd "${ROOT_DIR}"
+mv linux-* "${BUILD_DEST}"
+
+echo "Files are in: ${BUILD_DEST}"
+
+# Zip it all up
+#zip -r "${DIR_NAME}.zip" "${DIR_NAME}"
