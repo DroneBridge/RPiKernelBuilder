@@ -11,8 +11,10 @@ jobs:
     - uses: actions/checkout@v1
     - name: cross-compile
       run: ./build-docker
+    - name: move-artifacts
+      run: mv rpi_kernels_* rpi_kernels
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       with:
         name: kernels
-        path: rpi_kernels_*
+        path: rpi_kernels
