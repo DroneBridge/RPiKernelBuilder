@@ -30,6 +30,9 @@ For other systems you can find installation instructions at: https://docs.docker
 ```
 ./build-docker
 ```
+A script is provided that will build the appropriate docker container and build both a armv6 and armv7 kernel.
+
+The kernels will be in the build directory after building is complete.
 
 The build-docker script provided will build the appropriate docker container and build both a armv6 and armv7 kernel.
 
