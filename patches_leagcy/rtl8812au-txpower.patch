@@ -1,4 +1,4 @@
-diff --git a/drivers/net/wireless/realtek/rtl8812au/hal/hal_com_phycfg.c b/drivers/net/wireless/realtek/rtl8812au/hal/hal_com_phycfg.c
+diff --git a/drivers/net/wireless/realtek/88XXAU/hal/hal_com_phycfg.c b/drivers/net/wireless/realtek/88XXAU/hal/hal_com_phycfg.c
 index 60bb4c1..2fd9b9a 100644
 --- a/drivers/net/wireless/realtek/rtl8812au/hal/hal_com_phycfg.c
 +++ b/drivers/net/wireless/realtek/rtl8812au/hal/hal_com_phycfg.c
@@ -60,10 +60,10 @@ index 60bb4c1..2fd9b9a 100644
 -}
 \ No newline at end of file
 +}
-diff --git a/drivers/net/wireless/realtek/rtl8812au/hal/rtl8812a/rtl8812a_phycfg.c b/drivers/net/wireless/realtek/rtl8812au/hal/rtl8812a/rtl8812a_phycfg.c
+diff --git a/drivers/net/wireless/realtek/88XXAU/hal/rtl8812a/rtl8812a_phycfg.c b/drivers/net/wireless/realtek/88XXAU/hal/rtl8812a/rtl8812a_phycfg.c
 index 56bef14..21d2b23 100644
---- a/drivers/net/wireless/realtek/rtl8812au/hal/rtl8812a/rtl8812a_phycfg.c
-+++ b/drivers/net/wireless/realtek/rtl8812au/hal/rtl8812a/rtl8812a_phycfg.c
+--- a/drivers/net/wireless/realtek/88XXAU/hal/rtl8812a/rtl8812a_phycfg.c
++++ b/drivers/net/wireless/realtek/88XXAU/hal/rtl8812a/rtl8812a_phycfg.c
 @@ -22,6 +22,8 @@
  
  /*----------------------------Function Body----------------------------------*/

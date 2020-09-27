@@ -1,4 +1,4 @@
-# Docker Raspberry Pi kernel builder for DroneBridge [Raspberry Pi]
+# Docker Raspberry Pi Kernel Builder for DroneBridge [Raspberry Pi]
 
 Docker image to build a Raspberry Pi kernel with patches required for DroneBridge.
 
