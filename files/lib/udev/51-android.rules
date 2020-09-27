@@ -1,0 +1,144 @@
+# Skip this section below if this device is not connected by USB
+SUBSYSTEM!="usb", GOTO="android_usb_rules_end"
+
+# Devices listed here in android_usb_rules_{begin...end} are connected by USB
+LABEL="android_usb_rules_begin"
+
+# Allwinner / Onda (Unverified)
+SUBSYSTEM=="usb", ATTR{idVendor}=="1f3a", ATTR{idProduct}=="1001", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1f3a", ATTR{idProduct}=="1002", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1f3a", ATTR{idProduct}=="1003", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1f3a", ATTR{idProduct}=="1004", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1f3a", ATTR{idProduct}=="1005", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1f3a", ATTR{idProduct}=="1006", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1f3a", ATTR{idProduct}=="1007", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1f3a", ATTR{idProduct}=="1008", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1f3a", ATTR{idProduct}=="1009", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1f3a", ATTR{idProduct}=="efe8", ENV{adb_user}="yes"
+# Amazon / Lab126, Inc.
+SUBSYSTEM=="usb", ATTR{idVendor}=="1949", ATTR{idProduct}=="0006", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1949", ATTR{idProduct}=="0008", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="1949", ATTR{idProduct}=="0022", ENV{adb_user}="yes"
+#Acer
+SUBSYSTEM=="usb", ATTR{idVendor}=="0502", ATTR{idProduct}=="3604", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="0502", ATTR{idProduct}=="3325", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="0502", ATTR{idProduct}=="3202", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="0502", ATTR{idProduct}=="3203", ENV{adb_user}="yes"
+#ASUS
+SUBSYSTEM=="usb", ATTR{idVendor}=="0b05", ATTR{idProduct}=="179e", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="0b05", ATTR{idProduct}=="179f", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="0b05", ATTR{idProduct}=="17a1", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="0b05", ATTR{idProduct}=="4c80", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="0b05", ATTR{idProduct}=="4c90", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="0b05", ATTR{idProduct}=="4c91", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="0b05", ATTR{idProduct}=="4ca0", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="0b05", ATTR{idProduct}=="4ca1", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="0b05", ATTR{idProduct}=="4d00", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="0b05", ATTR{idProduct}=="4d01", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="0b05", ATTR{idProduct}=="4daf", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="0b05", ATTR{idProduct}=="5410", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="0b05", ATTR{idProduct}=="5412", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="0b05", ATTR{idProduct}=="550f", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="0b05", ATTR{idProduct}=="7772", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="0b05", ATTR{idProduct}=="7773", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="0b05", ATTR{idProduct}=="7774", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="0b05", ATTR{idProduct}=="7775", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="0b05", ATTR{idProduct}=="7776", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="0b05", ATTR{idProduct}=="7777", ENV{adb_user}="yes"
+#Dell
+SUBSYSTEM=="usb", ATTR{idVendor}=="413c", ENV{adb_user}="yes"
+# Fairphone 2
+SUBSYSTEM=="usb", ATTR{idVendor}=="2ae5", ENV{adb_user}="yes"
+# Fairphone 2 aka Qualcomm, Inc.
+SUBSYSTEM=="usb", ATTR{idVendor}=="05c6", ATTR{idProduct}=="901d", ENV{adb_user}="yes"
+#Foxconn
+SUBSYSTEM=="usb", ATTR{idVendor}=="0489", ENV{adb_user}="yes"
+# Fuzhou Rockchip Electronics / Mediacom Smartpad 715i
+SUBSYSTEM=="usb", ATTR{idVendor}=="2207", ATTR{idProduct}=="0000", ENV{adb_user}="yes"
+# Fuzhou Rockchip Electronics /Ubislate 7Ci
+SUBSYSTEM=="usb", ATTR{idVendor}=="2207", ATTR{idProduct}=="0010", ENV{adb_user}="yes"
+#Fujitsu & Fujitsu Toshiba
+SUBSYSTEM=="usb", ATTR{idVendor}=="04c5", ENV{adb_user}="yes"
+#Garmin-Asus
+SUBSYSTEM=="usb", ATTR{idVendor}=="091e", ENV{adb_user}="yes"
+#Google
+SUBSYSTEM=="usb", ATTR{idVendor}=="18d1", ENV{adb_user}="yes"
+#Haier
+SUBSYSTEM=="usb", ATTR{idVendor}=="201e", ENV{adb_user}="yes"
+#Hisense
+SUBSYSTEM=="usb", ATTR{idVendor}=="109b", ENV{adb_user}="yes"
+#HTC
+SUBSYSTEM=="usb", ATTR{idVendor}=="0bb4", ENV{adb_user}="yes"
+#Huawei
+SUBSYSTEM=="usb", ATTR{idVendor}=="12d1", ATTR{idProduct}=="1038", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="12d1", ATTR{idProduct}=="1021", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="12d1", ATTR{idProduct}=="1057", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="12d1", ATTR{idProduct}=="1050", ENV{adb_user}="yes"
+#Intel
+SUBSYSTEM=="usb", ATTR{idVendor}=="8087", ATTR{idProduct}=="09ef", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="8087", ATTR{idProduct}=="0a16", ENV{adb_user}="yes"
+#K-Touch
+SUBSYSTEM=="usb", ATTR{idVendor}=="24e3", ENV{adb_user}="yes"
+#KT Tech
+SUBSYSTEM=="usb", ATTR{idVendor}=="2116", ENV{adb_user}="yes"
+#Kyocera
+SUBSYSTEM=="usb", ATTR{idVendor}=="0482", ENV{adb_user}="yes"
+#Lenovo
+SUBSYSTEM=="usb", ATTR{idVendor}=="17ef", ENV{adb_user}="yes"
+#LG
+SUBSYSTEM=="usb", ATTR{idVendor}=="1004", ENV{adb_user}="yes"
+#Motorola
+SUBSYSTEM=="usb", ATTR{idVendor}=="22b8", ENV{adb_user}="yes"
+#MTK
+SUBSYSTEM=="usb", ATTR{idVendor}=="0e8d", ENV{adb_user}="yes"
+#NEC
+SUBSYSTEM=="usb", ATTR{idVendor}=="0409", ENV{adb_user}="yes"
+#Nook
+SUBSYSTEM=="usb", ATTR{idVendor}=="2080", ENV{adb_user}="yes"
+#Nvidia
+SUBSYSTEM=="usb", ATTR{idVendor}=="0955", ENV{adb_user}="yes"
+#OnePlus
+SUBSYSTEM=="usb", ATTR{idVendor}=="2a70", ENV{adb_user}="yes"
+#OTGV
+SUBSYSTEM=="usb", ATTR{idVendor}=="2257", ENV{adb_user}="yes"
+#Pantech
+SUBSYSTEM=="usb", ATTR{idVendor}=="10a9", ENV{adb_user}="yes"
+#Pegatron
+SUBSYSTEM=="usb", ATTR{idVendor}=="1d4d", ENV{adb_user}="yes"
+#Philips
+SUBSYSTEM=="usb", ATTR{idVendor}=="0471", ENV{adb_user}="yes"
+#PMC-Sierra
+SUBSYSTEM=="usb", ATTR{idVendor}=="04da", ENV{adb_user}="yes"
+#Qualcomm
+SUBSYSTEM=="usb", ATTR{idVendor}=="05c6", ATTR{idProduct}=="6769", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="05c6", ATTR{idProduct}=="9025", ENV{adb_user}="yes"
+#SK Telesys
+SUBSYSTEM=="usb", ATTR{idVendor}=="1f53", ENV{adb_user}="yes"
+#Samsung
+SUBSYSTEM=="usb", ATTR{idVendor}=="04e8", ENV{adb_user}="yes"
+#Sharp
+SUBSYSTEM=="usb", ATTR{idVendor}=="04dd", ENV{adb_user}="yes"
+#Sony
+SUBSYSTEM=="usb", ATTR{idVendor}=="054c", ENV{adb_user}="yes"
+#Sony Ericsson
+SUBSYSTEM=="usb", ATTR{idVendor}=="0fce", ENV{adb_user}="yes"
+#Teleepoch
+SUBSYSTEM=="usb", ATTR{idVendor}=="2340", ENV{adb_user}="yes"
+#Toshiba
+SUBSYSTEM=="usb", ATTR{idVendor}=="0930", ENV{adb_user}="yes"
+# XiaoMi
+SUBSYSTEM=="usb", ATTR{idVendor}=="2717", ENV{adb_user}="yes"
+#ZTE
+SUBSYSTEM=="usb", ATTR{idVendor}=="19d2", ATTR{idProduct}=="1351", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="19d2", ATTR{idProduct}=="1353", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="19d2", ATTR{idProduct}=="1354", ENV{adb_user}="yes"
+SUBSYSTEM=="usb", ATTR{idVendor}=="19d2", ATTR{idProduct}=="1355", ENV{adb_user}="yes"
+#ZUK
+SUBSYSTEM=="usb", ATTR{idVendor}=="2b4c", ENV{adb_user}="yes"
+
+# Enable device as a user device if found
+ENV{adb_user}=="yes", MODE="0660", GROUP="plugdev", TAG+="uaccess"
+
+SUBSYSTEM=="usb", ATTRS{idVendor}=="18d1", MODE="0666"
+
+LABEL="android_usb_rules_end"

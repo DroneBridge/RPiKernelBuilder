@@ -1,8 +1,10 @@
-[![Actions Status](https://github.com/webbbn/docker-rpi3-kernel-builder/workflows/build/badge.svg)
+# Docker Raspberry Pi kernel builder for DroneBridge [Raspberry Pi]
 
-# Docker Raspberry Pi kernel builder for [Open.HD](https://github.com/HD-Fpv/Open.HD)
+Docker image to build a Raspberry Pi kernel with patches required for DroneBridge.
 
-Docker image to build a Raspberry Pi kernel with patches required for OpenHD
+- Patches Kernel drivers to more output power
+- Installs [aircrack/rtl8812au](https://github.com/aircrack-ng/rtl8812au) drivers
+- Builds install files for the DroneBridge image
 
 ## Preparation
 
@@ -40,6 +42,7 @@ The kernels will be in the build directory after building is complete.
 
 ## Attribution
 Based on:
+- https://github.com/webbbn/Open.HD-Kernel-Builder
 - https://github.com/simonvanderveldt/docker-rpi3-kernel-builder
 - https://github.com/DieterReuter/rpi64-kernel
 - https://autostatic.com/2017/06/27/rpi-3-and-the-real-time-kernel/

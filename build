@@ -20,6 +20,10 @@ fi
 # Checkout the linux source directory
 git clone --single-branch --branch rpi-4.19.y --depth 1 https://www.github.com/raspberrypi/linux ${LINUX_SRC_DIR}
 cd "${LINUX_SRC_DIR}"
+git checkout cc39f1c9f82f6fe5a437836811d906c709e0661c
+cp "${ROOT_DIR}/configs/db_bcm2709_defconfig" "arch/arm/configs/db_bcm2709_defconfig"
+cp "${ROOT_DIR}/configs/db_bcm2711_defconfig" "arch/arm/configs/db_bcm2711_defconfig"
+cp "${ROOT_DIR}/configs/db_bcmrpi_defconfig" "arch/arm/configs/db_bcmrpi_defconfig"
 
 # Create the temporary install directory
 KDEST="${LINUX_SRC_DIR}/install"
@@ -29,15 +33,18 @@ mkdir -p "${KDEST}"
 # Checkout the rtl8812au driver
 (
     cd drivers/net/wireless/realtek
-    git clone -b v5.2.20 https://github.com/aircrack-ng/rtl8812au.git
-    cd rtl8812au
+    git clone -b v5.6.4.2 https://github.com/aircrack-ng/rtl8812au.git 88XXAU
+    cd 88XXAU
+    git checkout 07c704c0a7131208a909c3fc36e7daa122b98b16
 
     sed -i 's/CONFIG_PLATFORM_I386_PC = y/CONFIG_PLATFORM_I386_PC = n/' Makefile
     sed -i 's/CONFIG_PLATFORM_ARM_RPI = n/CONFIG_PLATFORM_ARM_RPI = y/' Makefile
-    # per justins request commented out
     # sudo sed -i 's/CONFIG_USB2_EXTERNAL_POWER = n/CONFIG_USB2_EXTERNAL_POWER = y/' Makefile
     sed -i 's/export TopDIR ?= $(shell pwd)/export TopDIR2 ?= $(shell pwd)/' Makefile
-    sed -i '/export TopDIR2 ?= $(shell pwd)/a export TopDIR := $(TopDIR2)/drivers/net/wireless/realtek/rtl8812au/' Makefile
+    sed -i '/export TopDIR2 ?= $(shell pwd)/a export TopDIR := $(TopDIR2)/drivers/net/wireless/realtek/88XXAU/' Makefile
+    # Needed for building with buster
+    sed -i 's/^dkms build/ARCH=arm dkms build/' dkms-install.sh
+    sed -i 's/^MAKE="/MAKE="ARCH=arm\ /' dkms.conf
 
     # Change the STBC value to make all antennas send with awus036ACH
     (
@@ -78,10 +85,10 @@ build_kernel() {
 
     # Change some config defaults
     sed -i 's/^.*CONFIG_NET_FOU .*$/CONFIG_NET_FOU=m/' .config
-    sed -i 's/^.*CONFIG_RTL8812AU .*$/CONFIG_RTL8812AU=m/' .config
-    sed -i 's/^.*CONFIG_CFG80211_CERTIFICATION_ONUS.*$/CONFIG_CFG80211_CERTIFICATION_ONUS=y/' .config
-    sed -i 's/^.*CONFIG_CFG80211_REQUIRE_SIGNED_REGDB.*$/#CONFIG_CFG80211_REQUIRE_SIGNED_REGDB is not set/' .config
-    sed -i 's/^.*CONFIG_CFG80211_USE_KERNEL_REGDB_KEYS.*$/#CONFIG_CFG80211_USE_KERNEL_REGDB_KEYS is not set/' .config
+    # sed -i 's/^.*CONFIG_88XXAU .*$/CONFIG_88XXAU=m/' .config
+    # sed -i 's/^.*CONFIG_CFG80211_CERTIFICATION_ONUS.*$/CONFIG_CFG80211_CERTIFICATION_ONUS=y/' .config
+    # sed -i 's/^.*CONFIG_CFG80211_REQUIRE_SIGNED_REGDB.*$/#CONFIG_CFG80211_REQUIRE_SIGNED_REGDB is not set/' .config
+    # sed -i 's/^.*CONFIG_CFG80211_USE_KERNEL_REGDB_KEYS.*$/#CONFIG_CFG80211_USE_KERNEL_REGDB_KEYS is not set/' .config
 
     # Store and print kernelrease
     make kernelrelease
@@ -109,9 +116,9 @@ build_kernel() {
 
 
 # Build the kernel for armv6 (Pi 1, Pi Zero, Pi Zero W, or Compute Module)
-build_kernel "kernel" "bcmrpi_defconfig"
-build_kernel "kernel7" "bcm2709_defconfig"
-build_kernel "kernel7l" "bcm2711_defconfig"
+build_kernel "kernel" "db_bcmrpi_defconfig"
+build_kernel "kernel7" "db_bcm2709_defconfig"
+build_kernel "kernel7l" "db_bcm2711_defconfig"
 
 # Copy the files into the kernel build destination
 cd ${ROOT_DIR}/files
